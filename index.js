@@ -16,12 +16,15 @@ function startCountdownTask() {
   cron.schedule("*/5 * * * *", () => {
     updateCountdown();
   });
+  
+  // Initial update when the bot starts
+  updateCountdown();
 }
 
 function updateCountdown() {
   // Get the current time in Phoenix (MST/Arizona time - UTC-7 with no DST)
   const phoenixTime = new Date(
-    new Date().toLocaleString("en-US", { timeZone: "America/Phoenix" }),
+    Date.now() - (7 * 60 * 60 * 1000) // UTC-7 for Phoenix
   );
   const endTime = new Date(phoenixTime);
 
