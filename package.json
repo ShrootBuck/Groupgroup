@@ -1,0 +1,18 @@
+{
+  "name": "group-timer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": ["discord", "bot", "timer"],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "description": "Discord bot that shows countdown to group therapy end time",
+  "dependencies": {
+    "discord.js": "^14.18.0",
+    "dotenv": "^16.4.7",
+    "node-cron": "^3.0.3"
+  }
+}
