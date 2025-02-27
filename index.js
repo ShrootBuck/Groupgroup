@@ -16,7 +16,7 @@ function startCountdownTask() {
   cron.schedule("*/5 * * * *", () => {
     updateCountdown();
   });
-  
+
   // Initial update when the bot starts
   updateCountdown();
 }
@@ -24,33 +24,71 @@ function startCountdownTask() {
 function updateCountdown() {
   // Get the current time in Phoenix (MST/Arizona time - UTC-7 with no DST)
   const phoenixTime = new Date(
-    Date.now() - (7 * 60 * 60 * 1000) // UTC-7 for Phoenix
-  );
-  const endTime = new Date(phoenixTime);
-
-  // Set the end time to today at 7:50 PM Phoenix time
-  endTime.setHours(19, 50, 0, 0);
-
-  // If current Phoenix time is past 7:50 PM, set end time to tomorrow
-  if (phoenixTime > endTime) {
-    endTime.setDate(endTime.getDate() + 1);
-  }
-
-  // Calculate time remaining
-  const timeRemaining = endTime - phoenixTime;
-
-  // Convert to hours and minutes
-  const hoursRemaining = Math.floor(timeRemaining / (1000 * 60 * 60));
-  const minutesRemaining = Math.floor(
-    (timeRemaining % (1000 * 60 * 60)) / (1000 * 60),
+    Date.now() - 7 * 60 * 60 * 1000, // UTC-7 for Phoenix
   );
 
-  // Format the countdown
-  let countdownText;
-  if (phoenixTime.getHours() === 19 && phoenixTime.getMinutes() === 50) {
-    countdownText = "Group Ended";
+  // Check if today is a group day (Monday, Wednesday, or Thursday)
+  const dayOfWeek = phoenixTime.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  const isGroupDay = dayOfWeek === 1 || dayOfWeek === 3 || dayOfWeek === 4; // Monday, Wednesday, Thursday
+
+  if (!isGroupDay) {
+    // Not a group day, show "No group today!"
+    countdownText = "No group today!";
   } else {
-    countdownText = `Group: ${hoursRemaining}h ${minutesRemaining}m left`;
+    // Set the start time to today at 5:00 PM Phoenix time
+    const startTime = new Date(phoenixTime);
+    startTime.setHours(17, 0, 0, 0);
+
+    // Set the end time to today at 7:50 PM Phoenix time
+    const endTime = new Date(phoenixTime);
+    endTime.setHours(19, 50, 0, 0);
+
+    // Adjust dates if needed
+    if (phoenixTime < startTime) {
+      // Before start time - show "Group in X time"
+      const timeUntilStart = startTime - phoenixTime;
+      const hoursUntilStart = Math.floor(timeUntilStart / (1000 * 60 * 60));
+      const minutesUntilStart = Math.floor(
+        (timeUntilStart % (1000 * 60 * 60)) / (1000 * 60),
+      );
+      countdownText = `Group in: ${hoursUntilStart}h ${minutesUntilStart}m`;
+    } else if (phoenixTime >= startTime && phoenixTime <= endTime) {
+      // During group - show time remaining
+      const timeRemaining = endTime - phoenixTime;
+      const hoursRemaining = Math.floor(timeRemaining / (1000 * 60 * 60));
+      const minutesRemaining = Math.floor(
+        (timeRemaining % (1000 * 60 * 60)) / (1000 * 60),
+      );
+      countdownText = `Group: ${hoursRemaining}h ${minutesRemaining}m left`;
+    } else {
+      // After end time - find next group day
+      let daysToAdd = 1;
+      while (daysToAdd <= 7) {
+        const nextDay = new Date(phoenixTime);
+        nextDay.setDate(phoenixTime.getDate() + daysToAdd);
+        const nextDayOfWeek = nextDay.getDay();
+
+        // Check if the next day is a group day
+        if (nextDayOfWeek === 1 || nextDayOfWeek === 3 || nextDayOfWeek === 4) {
+          // Found the next group day
+          startTime.setDate(startTime.getDate() + daysToAdd);
+          break;
+        }
+        daysToAdd++;
+      }
+
+      const timeUntilStart = startTime - phoenixTime;
+      const hoursUntilStart = Math.floor(timeUntilStart / (1000 * 60 * 60));
+      const minutesUntilStart = Math.floor(
+        (timeUntilStart % (1000 * 60 * 60)) / (1000 * 60),
+      );
+      countdownText = `Group in: ${hoursUntilStart}h ${minutesUntilStart}m`;
+    }
+
+    // Special case for exactly at end time
+    if (phoenixTime.getHours() === 19 && phoenixTime.getMinutes() === 50) {
+      countdownText = "Group Ended";
+    }
   }
 
   // Update the channel name
