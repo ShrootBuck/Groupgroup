@@ -19,19 +19,22 @@ function startCountdownTask() {
 }
 
 function updateCountdown() {
-  const now = new Date();
-  const endTime = new Date();
+  // Get the current time in Phoenix (MST/Arizona time - UTC-7 with no DST)
+  const phoenixTime = new Date(
+    new Date().toLocaleString("en-US", { timeZone: "America/Phoenix" }),
+  );
+  const endTime = new Date(phoenixTime);
 
-  // Set the end time to today at 8 PM
-  endTime.setHours(20, 0, 0, 0);
+  // Set the end time to today at 7:50 PM Phoenix time
+  endTime.setHours(19, 50, 0, 0);
 
-  // If current time is past 8 PM, set end time to tomorrow
-  if (now > endTime) {
+  // If current Phoenix time is past 7:50 PM, set end time to tomorrow
+  if (phoenixTime > endTime) {
     endTime.setDate(endTime.getDate() + 1);
   }
 
   // Calculate time remaining
-  const timeRemaining = endTime - now;
+  const timeRemaining = endTime - phoenixTime;
 
   // Convert to hours and minutes
   const hoursRemaining = Math.floor(timeRemaining / (1000 * 60 * 60));
@@ -41,7 +44,7 @@ function updateCountdown() {
 
   // Format the countdown
   let countdownText;
-  if (timeRemaining <= 0) {
+  if (phoenixTime.getHours() === 19 && phoenixTime.getMinutes() === 50) {
     countdownText = "Group Ended";
   } else {
     countdownText = `Group: ${hoursRemaining}h ${minutesRemaining}m left`;
