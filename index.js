@@ -12,8 +12,8 @@ client.once("ready", () => {
 });
 
 function startCountdownTask() {
-  // Run every minute
-  cron.schedule("* * * * *", () => {
+  // Run every 5 minutes to avoid rate limits
+  cron.schedule("*/5 * * * *", () => {
     updateCountdown();
   });
 }
