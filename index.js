@@ -33,7 +33,7 @@ function updateCountdown() {
 
   if (!isGroupDay) {
     // Not a group day, show "No group today!"
-    countdownText = "No group today!";
+    countdownText = "no poop today";
   } else {
     // Set the start time to today at 5:00 PM Phoenix time
     const startTime = new Date(phoenixTime);
@@ -42,6 +42,10 @@ function updateCountdown() {
     // Set the end time to today at 7:50 PM Phoenix time
     const endTime = new Date(phoenixTime);
     endTime.setHours(19, 50, 0, 0);
+
+    // Set the post-group message cutoff time (30 minutes after end)
+    const postGroupCutoff = new Date(endTime);
+    postGroupCutoff.setMinutes(postGroupCutoff.getMinutes() + 30);
 
     // Adjust dates if needed
     if (phoenixTime < startTime) {
@@ -60,8 +64,11 @@ function updateCountdown() {
         (timeRemaining % (1000 * 60 * 60)) / (1000 * 60),
       );
       countdownText = `Group: ${hoursRemaining}h ${minutesRemaining}m left`;
+    } else if (phoenixTime > endTime && phoenixTime <= postGroupCutoff) {
+      // Within 30 minutes after end time
+      countdownText = "poop over";
     } else {
-      // After end time - find next group day
+      // After post-group cutoff - find next group day
       let daysToAdd = 1;
       while (daysToAdd <= 7) {
         const nextDay = new Date(phoenixTime);
@@ -87,12 +94,12 @@ function updateCountdown() {
 
     // Special case for exactly at end time
     if (phoenixTime.getHours() === 19 && phoenixTime.getMinutes() === 50) {
-      countdownText = "Group Ended";
+      countdownText = "poop over";
     }
   }
 
   // Update the channel name
-  const channelId = process.env.CHANNEL_ID;
+  const channelId = "1213697514042040411";
   const channel = client.channels.cache.get(channelId);
 
   if (channel && channel.manageable) {
