@@ -1,6 +1,6 @@
 require("dotenv").config();
-import { Client, IntentsBitField, GatewayIntentBits } from "discord.js";
-import { schedule } from "node-cron";
+const { Client, IntentsBitField, GatewayIntentBits } = require("discord.js");
+const cron = require("node-cron");
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
@@ -13,7 +13,7 @@ client.once("ready", () => {
 
 function startCountdownTask() {
   // Run every 5 minutes to avoid rate limits
-  schedule("*/5 * * * *", () => {
+  cron.schedule("*/5 * * * *", () => {
     updateCountdown();
   });
 
@@ -35,11 +35,11 @@ function updateCountdown() {
     // Not a group day, show "No group today!"
     countdownText = "no poop today";
   } else {
-    // Set the start time to today at 4:00 PM Phoenix time (moved back one hour)
+    // Set the start time to today at 4:00 PM Phoenix time
     const startTime = new Date(phoenixTime);
     startTime.setHours(16, 0, 0, 0);
 
-    // Set the end time to today at 6:50 PM Phoenix time (moved back one hour)
+    // Set the end time to today at 6:50 PM Phoenix time
     const endTime = new Date(phoenixTime);
     endTime.setHours(18, 50, 0, 0);
 
